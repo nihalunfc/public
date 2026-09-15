@@ -64,3 +64,4 @@ Before architecting a model, run this mandatory Grandmaster EDA checklist:
 3. **Target Distribution:** Check for heavy class imbalance to determine if Stratified K-Fold or Focal Loss is required.
 4. **De-anonymization / Clustering:** If group IDs (like "collection") are hidden but the evaluation relies on them, use unsupervised clustering (TF-IDF + K-Means) to recreate pseudo-groups for GroupKFold cross-validation.
 
+
