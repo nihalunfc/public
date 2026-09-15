@@ -50,8 +50,8 @@ These techniques are explicitly categorized by the challenge domain to provide i
 
 To survive the differing constraints of Kaggle (unlimited experimentation) and Shipd (strict static analysis and deployment formatting), every challenge must yield two distinct pipelines:
 
-* **The Kaggle Version:** Unrestricted. Uses Weights & Biases, downloads pre-trained models from the internet, uses interactive visualization (EDA plots), and saves multiple fold artifacts.
-* **The Shipd Version:** Strictly air-gapped and robust. 
+* **The Kaggle Version:** Unrestricted. **Crucial Rule: Place all input and output URL paths and a base dataset/model folder link at the very top of the script as global variables so we can easily edit them across different notebook iterations.** Uses Weights & Biases, downloads pre-trained models from the internet, uses interactive visualization (EDA plots), and saves multiple fold artifacts.
+* **The Shipd Version:** Strictly air-gapped and robust. *(Note: Do NOT use hardcoded top-level folder links here. Shipd requires dynamic pathing via arguments).*  
     * Must accept sys.argv[1] (public_dir) and sys.argv[2] (submission_out).
     * Must save the output to both sys.argv[2] AND ./working/submission.csv to pacify erratic evaluators.
     * **Shipd Comment Convention:** Shipd static analysis flags 	ime.time() as a non-deterministic timeout violation. To bypass this, strictly omit 	ime.time() or wrap time-based safety nets in this exact comment block: 
@@ -63,3 +63,4 @@ Before architecting a model, run this mandatory Grandmaster EDA checklist:
 2. **Data Shape & Missing Values:** Log counts of NaNs, duplicates, and text lengths (min, max, median, 99th percentile) to determine truncation strategies.
 3. **Target Distribution:** Check for heavy class imbalance to determine if Stratified K-Fold or Focal Loss is required.
 4. **De-anonymization / Clustering:** If group IDs (like "collection") are hidden but the evaluation relies on them, use unsupervised clustering (TF-IDF + K-Means) to recreate pseudo-groups for GroupKFold cross-validation.
+
