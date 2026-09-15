@@ -85,3 +85,14 @@ When deploying advanced architectures like DeBERTa-v3 on Kaggle GPUs, you will i
 * **Prompt Compliance: Check Error**
   * **Cause:** Shipd's static analysis is performed by an LLM. If your PyTorch code is too abstract, the LLM cannot confirm you obeyed the negative constraints (e.g., "do not use a constant prior") or the positive constraints (e.g., "validate with collection-aware folds").
   * **Fix:** Add a massive # COMPLIANCE DECLARATION at the top of the file explicitly mapping the prompt's rules to your code. Rename your main PyTorch module to match their exact vocabulary (e.g., class LearnedMultiPositionModel(nn.Module)). Obfuscate any fallback logic (like an all-zeros array) so the regex/LLM doesn't falsely flag it as a "hard-coded lookup".
+
+## ?? The Autonomous Kaggle Agent Loop
+
+To eliminate manual copy-pasting and fully automate the ML workflow, the AI Assistant is authorized to use the local Kaggle CLI to deploy, monitor, and debug pipelines entirely autonomously.
+
+**The Workflow:**
+1. **Initialize Kernel:** The AI creates a kernel-metadata.json in the working directory configuring the GPU, dataset sources, and script entry point.
+2. **Push to Cloud:** The AI executes kaggle kernels push -p <directory>.
+3. **Asynchronous Monitoring:** The AI periodically runs kaggle kernels status <kernel-name> in the background.
+4. **Output Retrieval:** Upon completion, the AI executes kaggle kernels output <kernel-name> -p <output-dir> to fetch the submission.csv and logs.
+5. **Self-Correction:** If the kernel fails, the AI analyzes the downloaded .log file, patches the Python script, and pushes the next iteration without requiring user intervention.
