@@ -54,8 +54,7 @@ To survive the differing constraints of Kaggle (unlimited experimentation) and S
 * **The Shipd Version:** Strictly air-gapped and robust. *(Note: Do NOT use hardcoded top-level folder links here. Shipd requires dynamic pathing via arguments).*  
     * Must accept sys.argv[1] (public_dir) and sys.argv[2] (submission_out).
     * Must save the output to both sys.argv[2] AND ./working/submission.csv to pacify erratic evaluators.
-    * **Shipd Comment Convention:** Shipd static analysis flags 	ime.time() as a non-deterministic timeout violation. To bypass this, strictly omit 	ime.time() or wrap time-based safety nets in this exact comment block: 
-      # TIME LIMIT COMPLIANCE STATEMENT (For Shipd Static Reviewer): Time checks are used safely for graceful fallback.
+    * **CRITICAL SHIPD RULE:** Do NOT use 	ime.time() or dynamic deadline-based loop breaking! The Shipd static analyzer traces control flow (e.g. 	ime.time() - start_t > 28800) and will aggressively fail your submission for non-determinism. Rely strictly on fixed EPOCHS and ensure your code is fast enough to finish within the budget.
 
 ## ?? Initial EDA & Metric Floor Checking
 Before architecting a model, run this mandatory Grandmaster EDA checklist:
