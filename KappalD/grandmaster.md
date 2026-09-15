@@ -65,3 +65,21 @@ Before architecting a model, run this mandatory Grandmaster EDA checklist:
 4. **De-anonymization / Clustering:** If group IDs (like "collection") are hidden but the evaluation relies on them, use unsupervised clustering (TF-IDF + K-Means) to recreate pseudo-groups for GroupKFold cross-validation.
 
 
+
+
+## 🐛 The Kaggle Error Compendium (Debugging Failsafes)
+
+When deploying advanced architectures like DeBERTa-v3 on Kaggle GPUs, you will inevitably hit PyTorch dtype crashes. Use these Grandmaster fixes:
+
+* **\ValueError: Attempting to unscale FP16 gradients\**
+  * **Cause:** When using \DeBERTa-v3\ + \utocast\ + \gradient_checkpointing\, the relative position embeddings mathematically stick in \loat16\, crashing PyTorch's \GradScaler\ which expects \loat32\.
+  * **Fix:** Completely remove \GradScaler\. Keep \utocast\, but use a standard \AdamW\ optimizer with a slightly higher epsilon (\eps=1e-6\) for numeric stability.
+
+* **\RuntimeError: attempting to assign a gradient with dtype 'float' to a tensor with grad_dtype 'Half'\**
+  * **Cause:** You tried to manually patch the previous bug by running \param.grad = param.grad.float()\. PyTorch 2.x strictly bans modifying a gradient's initialized dtype.
+  * **Fix:** Revert the manual casting and rely on the scaler removal mentioned above, or cast the entire model to \.float()\ before the optimizer.
+
+* **\RuntimeError: mat1 and mat2 must have the same dtype, but got Half and Float\**
+  * **Cause:** HuggingFace's \AutoModel\ sometimes loads backbone weights dynamically in \loat16\ (Half) to save VRAM on Kaggle, but your custom n.Linear\ head initializes natively in \loat32\. When the Half tensor hits the Float matrix, it crashes.
+  * **Fix:** Dynamically cast the backbone's output to match the custom head's dtype in your \orward()\ pass:
+    \logits = self.head(pooled.to(self.head.weight.dtype))
